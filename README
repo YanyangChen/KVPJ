@@ -1,4 +1,360 @@
 Installation:
+https://sites.google.com/site/3dreconstructionusingkinect/project-updates/Installation-of-RGB-demo-07-on-Ubuntu-1204
+
+
+###############kinect installation######################################################################################################
+ Demonstration of RGB Demo0.7 on UBuntu12.04
+posted Oct 19, 2009, 9:46 PM by aishwarya kotla   [ updated Dec 22, 2014, 8:17 AM ]
+
+    Installing Libfreenect
+    Installing Open-NI, Sensor kinect, Avin2Sensor patch and NITE (Note: only 1.5xx versions work with RGB demo source not the github)
+    Installing PCL-1.6
+    Installing OpenCV-2.3.1
+    Installing RGB demo
+    Installing QT
+
+Note: PCL-1.6, OpenCV2.3.1 and QT libraries should be downloaded from Ubuntu repositories, otherwise there will be a conflict
+Getting started with OpenKinect (Libfreenect)
+
+Here are the list of Ubuntu Kinect Installation commands. Install the following dependencies.The first line in each of the listings below takes care of this step:
+
+    git-core
+    cmake
+    libglut3-dev
+    pkg-config
+    build-essential
+
+
+    Install the dependencies by using the following commands
+
+    sudo apt-get install git-core cmake libglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev
+    git clone https://github.com/OpenKinect/libfreenect.git
+    cd libfreenect
+    mkdir build
+    cd build
+    cmake ..
+    make
+    sudo make install
+    sudo ldconfig /usr/local/lib64/
+    sudo glview
+
+    Note:  If there is an error saying apt-get cannot find libglut3, the system might be on a newer version of Ubuntu that has freeglut3-* instead of libglut3-*, so the initial apt-get install would look like:
+
+    sudo apt-get install git-core cmake freeglut3-dev pkg-config build-essential libxmu-dev libxi-dev libusb-1.0-0-dev
+
+
+For ubuntu 12.04.01, freeglut* works
+To use the kinect as the non-root user, do the following:
+
+sudo adduser $USER video
+
+Also make a file with rules for the Linux device manager:
+
+sudo nano /etc/udev/rules.d/51-kinect.rules
+
+Copy and paste the following
+
+# ATTR{product}=="Xbox NUI Motor"
+SUBSYSTEM=="usb", ATTR{idVendor}=="045e", ATTR{idProduct}=="02b0", MODE="0666"
+# ATTR{product}=="Xbox NUI Audio"
+SUBSYSTEM=="usb", ATTR{idVendor}=="045e", ATTR{idProduct}=="02ad", MODE="0666"
+# ATTR{product}=="Xbox NUI Camera"
+SUBSYSTEM=="usb", ATTR{idVendor}=="045e", ATTR{idProduct}=="02ae", MODE="0666"
+
+Be sure to log out and back in by pressing ctrl-D and ctrl-M.
+
+Now, do the samething to make a file with rules for the Linux device manager but for 66-kinect rules
+
+sudo nano /etc/udev/rules.d/66-kinect.rules
+
+Now, copy and paste the following:
+
+#Rules for Kinect
+SYSFS{idVendor}=="045e", SYSFS{idProduct}=="02ae", MODE="0660",GROUP="video"
+SYSFS{idVendor}=="045e", SYSFS{idProduct}=="02ad", MODE="0660",GROUP="video"
+SYSFS{idVendor}=="045e", SYSFS{idProduct}=="02b0", MODE="0660",GROUP="video"
+#End
+
+Be sure to log out and back in.
+
+Now, add the username of your system to the videogroup:
+
+$    sudo usermod -a -G video roboticslab
+
+For more information, goto http://openkinect.org/wiki/Getting_Started#Ubuntu_Manual_Install
+and kinect hacking by Jeff Kramer
+Libfreenect Testing
+
+To test the driver installation 'libfreenect', to open the kinect, do the following steps:
+
+    Open glview, which is in libfreenect/build/bin directory. To do this: the directory should be changed as the current directory is roboticslab
+    To change directory to libfreenect use cd \ and then type libfreenect
+    Now, plugin the kinect. If the kinect is already plugged-in, unplug and replug the kinect.
+    To open glview
+
+    $ build/bin/glview
+
+    The outputs are seen like this:
+
+    The terminal output:
+
+In the terminal output, raw acceleration is the raw data of x,y and z frames where as mks acceleration gets the state of x, y and z frames.
+
+when 0-6 numbers are typed, the led light on the kinect changes to green, red and orange. When s is typed, the kinect tilts up and for x, the kinect tilts down. When f is typed (from the keyboard), there will be a change in the frame of the video, where IR frame is viewed. When continuously pressed on 'f' , both the frames( rgb frame and ir frame are viewed).
+Here are the pictures.
+
+  IR frame on the Right side
+
+
+RGB frame and IR frame on the right side
+
+Installation  of PCL
+
+Install PCL pre-built libraries from PPA repositories, so that there will be no issue or missing of libraries by the following commands:
+
+$ sudo add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
+$ sudo apt-get update
+$ sudo apt-get install libpcl-all
+
+This will install all the required libraries for PCL.
+Installation  of Open-NI, Nite, Sensor Driver and Avin2Sensor
+
+Step 1 - Install Required support library and to check if they are upto date
+
+ $ sudo apt-get update
+ $ sudo apt-get install mono-complete libusb-1.0-0-dev freeglut3-dev
+
+If you have a Nvidia graphics card it's recommended to have the latest drivers: Instruction here
+Step 2 - Create a folder for holding the download and the installation
+
+$ mkdir kinect
+$ cd kinect
+
+Step 3 - Download the OpenNI ,NITE, Sensor and AVIN2
+
+If you are using  Ubuntu 12.04 make sure to have the following versions (or newer) :
+
+    OpenNI UNstable build for Ubuntu 12.04- - v1.5.4
+    PrimeSense NITE UNstable build for Ubuntu 12.04 - v1.5.2.21
+
+
+Download OpenNI,NITE and sensor from the following link:
+
+https://code.google.com/p/simple-openni/downloads/detail?name=OpenNI_NITE_Installer-Linux64-0.27.zip&can=3&q=
+
+Avin2 patch sensor is needed for the kinect. You can  download it from https://github.com/avin2/SensorKinect/zipball/unstable and move to the kinect folder later extracting it and rename it as Sensor Kinect
+
+Step 4 - Extract the downloaded zip to the desired folder
+
+Extracted folders from the first step will be named in a following manner:
+
+OpenNI-Bin-Linux32-v1.1.0.41
+Sensor-Bin-Linux32-v5.0.1.32
+Nite-1.3.1.5
+
+Now extract the zipped folders of Open-NI, NITE, Sensor Bin and Avin2 to the folder named 'kinect'  and rename OpenNI-Bin-Linux32-v1.1.0.41 to OpenNI , Sensor-Bin-Linux32-v5.0.1.32 to Sensor and Nite-1.3.1.5 to Nite
+
+Step 5 - Installing Open-NI
+
+$ cd kinect/OpenNI/
+$ sudo ./install.sh 
+
+
+Step 6 - Installing Sensor
+
+$ cd ../Sensor
+$ sudo ./install.sh 
+
+
+Step 7 - Installing Nite
+
+$ cd ../Nite
+$ sudo ./install.sh 
+
+
+Step 8 - Installing Avin2 Sensor Kinect
+
+$ cd ../SensorKinect/Platform/Linux/CreateRedist/
+$ sudo ./RedistMaker
+$ cd Redist/Sensor-Bin-Linux-x64-v5.1.2.1/
+$ sudo ./install.sh 
+
+Please note that the Folder 'Sensor-Bin-Linux-x64-v5.1.0.25' might change name in new releases of AVIN2.,
+
+ Step 9 - Testing the kinect if everything is working
+
+$ cd ../kinect/OpenNI/Samples/Bin/x64-Release/
+$ ./NiViewer
+
+The above commands should provide depth and RGB stream in a window.
+
+
+Installation of Opencv2.3.1 on Ubuntu
+
+Before installing OpenCV to a Linux machine, the following pre-requisites need to be installed
+
+• GTK+ 2.0 or better.Be sure to include all headers and development files
+• libpng, zlib, libjpeg, libtiff, and libjasper with all development files
+• SWIG 1.3.30 or better
+• ffmpeg and libavcodec from 0.4.9-pre1 or later, plus the headers and development files
+• libdc1394 2.0 or better, plus the headers
+
+Install OpenCV by the following commands
+
+$ sudo apt-get install libpng12-0 libpng12-dev 
+$ sudo apt-get install libpng++-dev libpng3 libpnglite-dev 
+$ sudo apt-get install zlib1g-dbg zlib1g zlib1g-dev
+$ sudo apt-get install libjasper-dev libjasper-runtime libjasper1
+$ sudo apt-get install pngtools libtiff4-dev libtiff4 libtiffxx0c2 libtiff-tools
+$ sudo apt-get install libjpeg62 libjpeg62-dev libjpeg62-dbg libjpeg-progs
+$ sudo apt-get install ffmpeg libavcodec-dev libavcodec54 libavformat54 libavformat-dev
+$ sudo apt-get install libgstreamer0.10-0-dbg libgstreamer0.10-0 libgstreamer0.10-dev
+$ sudo apt-get install libxine1-ffmpeg libxine-dev libxine1-bin
+$ sudo apt-get install libunicap2 libunicap2-dev
+$ sudo apt-get install libdc1394-22-dev libdc1394-22 libdc1394-utils
+$ sudo apt-get install swig
+$ sudo apt-get install libv4l-0 libv4l-dev
+$ sudo apt-get install python-numpy
+$ sudo apt-get install libtbb2 libtbb-dev
+
+  
+
+       With the pre-requisites, you can download and install Opencv2.3.1
+
+    Download OpenCV-2.3.1 from http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.3.1/OpenCV-2.3.1a.tar.bz2/download
+    Untar the downloaded file and create build directory  and go to the build directory by the following command from the terminal:
+
+roboticslab@CO-ROBOT:~$ cd OpenCV-2.3.1/
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1$ mkdir build
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1$ cd build/
+
+    After going to the build directory, configure ccmake by the following command
+
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1/build$ ccmake ..
+
+    Configure and set up the options as follows: make sure that CUDA, EIGEN and IPP to turn OFF and TBB to turn ON
+    Configure by pressing c and generate by pressing g .
+    Run the following command for the installation and sudo make install to put OpenCV in the right place and add it to your library path.
+
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1/build$ make
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1/build$ sudo make install
+
+    In the OpenCV folder, use cdto go into the build directory and again to go into bin by using
+
+roboticslab@CO-ROBOT:~/OpenCV-2.3.1/build$ cd bin
+
+    Run the OpenCV tests with ./opencv_test_core.The results should come back stating that OpenCV is fully operational.
+
+    roboticslab@CO-ROBOT:~/OpenCV-2.3.1/build/bin$ ./opencv_test_core
+
+   
+
+
+
+After having installed the Libfreenect, download RGBdemo 0.7 source from RGBDemo-0.7.0-Source.tar.gz
+Installation of RGBdemo0.7
+
+ 
+
+    Install OpenCV2.3.1 specifically as this software is developed under GNU license and it has many conflicts when developed under the new versions of OpenCV.
+    Note: Download/Install all the dependencies, packages and libraries from Ubuntu repository for OpenCV and PCL to avoid too many problems
+
+    Download RGbdemo0.7 of tar.gz file and unzip it.
+    From the terminal install the packages onto RGBdemo0.7 source directory by
+
+$ sudo apt-get install libboost-all-dev libusb-1.0-0-dev libqt4-dev libgtk2.0-dev cmake cmake-curses-gui libglew1.5-dev libgsl0-dev freeglut3-dev libxmu-dev
+
+    Change to the source directory from the terminal by using the command 
+
+$ cd RGBDemo-0.7.0-Source
+
+    Make the build directory, and run ccmake by
+
+$ ./linux_configure.sh
+$ cd build
+$ ccmake ..
+
+Configure the following options:
+
+    BUILD_EXAMPLES_ON
+    BUILD_FAKENECT_ON
+    NESTK_USE_FREENECT_ON
+    NESTK_USE_OPENNI_OFF
+    NESTK_USE_PCL_OFF
+
+  These are the options if you want to use freenect for rgbd-viewer and of course you need to calibrate libfreenect for rgb-reconstructor.
+
+If you are using OpenNI, these are the options to turn on for rgbd-viewer, rgbd-reconstructor and people detector. The rest of the features I did not try.
+
+    BUILD_EXAMPLES_ON
+    BUILD_FAKENECT_ON
+    NESTK_USE_FREENECT_ON
+    NESTK_USE_OPENNI_ON
+    NESTK_USE_PCL_ON
+
+Press c to configure and g to generate
+
+Now, run the build directory by:
+
+$ make
+
+               
+To get RGB-D image in dual RGB/IR camera, go to the source directory of RGB demo then type
+
+$ cd RGBDemo-0.7.0-Source/build/bin/
+$ ./rgbd-viewer --freenect
+
+Then click on show-->capture both RGB/IR frame.Here are some pictures for rgbdemo using libfreenect driver with both IR image and RGB imageby clicking show dual RGB/Ir camera.
+
+################################################################################################################################################
+
+
+
+
+#####Voice installation##################################################################################################################
+
+http://cmusphinx.sourceforge.net/wiki/tutorialpocketsphinx
+
+Unix-like Installation
+
+To build pocketsphinx in a unix-like environment (such as Linux, Solaris, FreeBSD etc) you need to make sure you have the following dependencies installed: gcc, automake, autoconf, libtool, bison, swig at least version 2.0, python development package, pulseaudio development package. If you want to build without dependencies you can use proper configure options like –without-swig-python but for beginner it is recommended to install all dependencies.
+
+You need to download both sphinxbase and pocketsphinx packages and unpack them. Please note that you can not use sphinxbase and pocketsphinx of different version, please make sure that versions are in sync. After unpack you should see the following two main folders:
+
+   sphinxbase-X.X
+   pocketsphinx-X.x
+
+On step one, build and install SphinxBase. Change current directory to sphinxbase folder. If you downloaded directly from the repository, you need to do this at least once to generate the configure file:
+
+   % ./autogen.sh
+
+if you downloaded the release version, or ran autogen.sh at least once, then compile and install:
+
+   % ./configure
+   % make
+   % make install
+
+The last step might require root permissions so it might be sudo make install. If you want to use fixed-point arithmetic, you must configure SphinxBase with the –enable-fixed option. You can also set installation prefix with –prefix. You can also configure with or without SWIG python support.
+
+The sphinxbase will be installed in /usr/local/ folder by default. Not every system loads libraries from this folder automatically. To load them you need to configure the path to look for shared libaries. It can be done either in the file /etc/ld.so.conf or with exporting environment variables:
+
+   export LD_LIBRARY_PATH=/usr/local/lib
+   export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+Then change to pocketsphinx folder and perform the same steps
+
+  % ./configure
+  % make
+  % make install
+
+To test installation, run 'pocketsphinx_continuous -inmic yes' and check that it recognizes words you are saying to the microphone.
+
+#####voice installation########################################################################################################################
+
+
+
+
+
 
 
 To test the code:
