@@ -1,0 +1,11 @@
+Installation:
+
+
+To test the code:
+type:1. ./a.sh to open the voice control unit
+     2. ./control which enable voice unit to open the kinect control by voice
+     3. ./combine to do more dynamic halt and reset command between voice and kinect unit (by saying 'activate' and 'stop')
+
+in switch2.sh:
+1. change the directory of clienta binary so as to activate
+2. change clients directory so as to halt(stop)  
