@@ -311,7 +311,45 @@ Then click on show-->capture both RGB/IR frame.Here are some pictures for rgbdem
 
 
 
+#####Voice installation##################################################################################################################
 
+http://cmusphinx.sourceforge.net/wiki/tutorialpocketsphinx
+
+Unix-like Installation
+
+To build pocketsphinx in a unix-like environment (such as Linux, Solaris, FreeBSD etc) you need to make sure you have the following dependencies installed: gcc, automake, autoconf, libtool, bison, swig at least version 2.0, python development package, pulseaudio development package. If you want to build without dependencies you can use proper configure options like –without-swig-python but for beginner it is recommended to install all dependencies.
+
+You need to download both sphinxbase and pocketsphinx packages and unpack them. Please note that you can not use sphinxbase and pocketsphinx of different version, please make sure that versions are in sync. After unpack you should see the following two main folders:
+
+   sphinxbase-X.X
+   pocketsphinx-X.x
+
+On step one, build and install SphinxBase. Change current directory to sphinxbase folder. If you downloaded directly from the repository, you need to do this at least once to generate the configure file:
+
+   % ./autogen.sh
+
+if you downloaded the release version, or ran autogen.sh at least once, then compile and install:
+
+   % ./configure
+   % make
+   % make install
+
+The last step might require root permissions so it might be sudo make install. If you want to use fixed-point arithmetic, you must configure SphinxBase with the –enable-fixed option. You can also set installation prefix with –prefix. You can also configure with or without SWIG python support.
+
+The sphinxbase will be installed in /usr/local/ folder by default. Not every system loads libraries from this folder automatically. To load them you need to configure the path to look for shared libaries. It can be done either in the file /etc/ld.so.conf or with exporting environment variables:
+
+   export LD_LIBRARY_PATH=/usr/local/lib
+   export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+
+Then change to pocketsphinx folder and perform the same steps
+
+  % ./configure
+  % make
+  % make install
+
+To test installation, run 'pocketsphinx_continuous -inmic yes' and check that it recognizes words you are saying to the microphone.
+
+#####voice installation########################################################################################################################
 
 
 
