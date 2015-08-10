@@ -1,12 +1,4 @@
 
-/*libfreenect: https://github.com/OpenKinect/libfreenect
- * OpenNI:     https://github.com/OpenNI/OpenNI
- *       /kinect/OpenNI/Samples/NiSimpleSkeleton
- * */
-
-
-
-
 /****************************************************************************
 *                                                                           *
 *  OpenNI 1.x Alpha                                                         *
@@ -28,6 +20,19 @@
 *  along with OpenNI. If not, see <http://www.gnu.org/licenses/>.           *
 *                                                                           *
 ****************************************************************************/
+/*libfreenect: https://github.com/OpenKinect/libfreenect
+ * OpenNI:     https://github.com/OpenNI/OpenNI
+ *       /kinect/OpenNI/Samples/NiSimpleSkeleton
+ * */
+
+/* OPENNI sensors are listed below
+Microsoft Kinect
+ASUS Xtion PRO (no RGB)
+ASUS Xtion PRO Live (with RGB)
+PrimeSense PSDK 5.0 
+Intel realsense    https://github.com/teknotus/depthview
+*RGB-D sensor*/
+
 //---------------------------------------------------------------------------
 // Includes
 //---------------------------------------------------------------------------
@@ -306,16 +311,23 @@ int main()
                     
                     
     //-------for shared memory--------
-    char c;
+    char c, m;
     int shmid;
+    int shmidm;
     key_t keym;
-    char *shm, *s;
+    key_t keymecha; //key for mechanical robot
+    char *shm, *shmm, *s, *mecha;
     keym = 1234;
-    
+    keymecha = 4321;
         /*
      * Create the segment.
      */
     if ((shmid = shmget(keym, SHMSZ, IPC_CREAT | 0666)) < 0) {
+        perror("shmget");
+        exit(1);
+    }
+    
+    if ((shmidm = shmget(keymecha, SHMSZ, IPC_CREAT | 0666)) < 0) { // segment for medical robot
         perror("shmget");
         exit(1);
     }
@@ -328,13 +340,18 @@ int main()
         exit(1);
     }
 
+	if ((shmm = (char*)shmat(shmidm, NULL, 0)) == (char *) -1) {  // attaching segment for medical robot
+        perror("shmat");
+        exit(1);
+    }
     /*
      * Now put some things into the memory for the
      * other process to read.
      */
     s = shm;
 	*s = 't';
-    
+    mecha = shmm;
+    *mecha = 'n';
     //-------for shared memory----------
     
     
@@ -431,17 +448,18 @@ int main()
     float ya;
     float za;
 	//while (!xnOSWasKeyboardHit())    /////////////////modify here!
-	while (1)
+	while (1)  // the super loop begins here!!
     {
 		
         g_Context.WaitOneUpdateAll(g_UserGenerator);
         // print the torso information for the first user already tracking
         nUsers=MAX_NUM_USERS;
-        g_UserGenerator.GetUsers(aUsers, nUsers);
+        g_UserGenerator.GetUsers(aUsers, nUsers);  //generate a user
         for(XnUInt16 i=0; i<nUsers; i++)
         {
             if(g_UserGenerator.GetSkeletonCap().IsTracking(aUsers[i])==FALSE)
-                continue;
+                continue; //if the condition is satisfied, the following commands should never be generated.
+						  //"Any remaining statements in the current iteration are not executed. "
 			/*
   XN_SKEL_HEAD          = 1,    XN_SKEL_NECK            = 2,
   XN_SKEL_TORSO         = 3,    XN_SKEL_WAIST           = 4,
@@ -516,7 +534,7 @@ int main()
 						PIDcount = 0;
 						//return 0;
 					}
-                
+                //-----------------------------------------print process ID
                 
                 //~ printf ("/proc/self reports process id %d\n", (int) get_pid_from_proc_self ());
 					//~ 
@@ -578,20 +596,31 @@ int main()
 					
 					
 					
-					if(counter ==300)
+					if(counter ==300) // counter == 300 means reference resetted
 					{		
 					if (headJoint.position.position.Z - headcenter > 50)
 					{
 						head_up = 100;
 						printf("zooming out\n");
+						*mecha = 'o';
 						//zoomout_1 = 1;
 						zoomin_1 = 0;
+					}
+					
+					if (((headJoint.position.position.Z - headcenter) < 50) && ((headJoint.position.position.Z - headcenter) > -50))
+					{
+						//head_up = 100;
+						//printf("zooming out\n");
+						*mecha = 'n';
+						//zoomout_1 = 1;
+						//zoomin_1 = 0;
 					}
 					
 					if (headJoint.position.position.Z - headcenter < -50)
 					{
 						head_up = -100;
 						printf("zooming in\n");
+						*mecha = 'i';
 						zoomin_1 = 1;
 						//zoomout_1 = 0;
 					}
@@ -608,6 +637,8 @@ int main()
 						direct_x = directx + 10;
 						directx = direct_x;
 						}
+					////////////(filters)//
+					
 					
 					
 					//~ printf ("The arc cosine of panning angle is %f degrees.\n",  direct_x);

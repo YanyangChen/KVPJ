@@ -1,0 +1,17 @@
+  git init
+  git remote add github https://github.com/YanyangChen/KVPJ.git
+  git add .
+  git commit -m "first commit"
+  git push github master
+
+
+ 1988  cd opencv2410/
+ 1989  echo $PKG_CONFIG_PATH
+ 1990  cd /usr/lib/pkgconfig/
+ 1991  ls
+ 1992  sudo cp opencv.pc /usr/local/lib/pkgconfig/
+ 1993  cd
+ 1994  cd opencv-2.4.10/samples/c
+ 1995  ls
+ 1996  g++ facedetect.cpp -o facedetect `pkg-config --cflags --libs opencv`
+
