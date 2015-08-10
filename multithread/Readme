@@ -1,0 +1,3 @@
+compile with the following command in this folder path:
+g++ -o thread-create example.cpp -lpthread
+
